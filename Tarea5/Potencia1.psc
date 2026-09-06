@@ -8,7 +8,7 @@ Algoritmo Potencia1
 			Potencia <- 0
 			mayores <- Potencia +i
 			mayores <- mayores * mayores * mayores * mayores * mayores * mayores * mayores * mayores * mayores * mayores 
-			Escribir "La potencia de : ",i " es: ", mayores
+			Escribir n, " La potencia de : ",i " es: ", mayores
 			Escribir " "
 	FinPara
 FinAlgoritmo
