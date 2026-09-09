@@ -6,6 +6,6 @@ for i in range(1, n + 1):
           Potencia = 0
           mayores = Num
           print("La potencia de", Num)
-          print("Tabla de potencia","\n", mayores**2,"\n",  mayores**3,"\n",  mayores**4,"\n",  mayores**5,"\n",  mayores**6,"\n",  mayores**7,"\n",  mayores**8,"\n",  mayores**9,"\n",  mayores**10 )
+          print("Tabla de potencia","\n", mayores*2,"\n",  mayores*3,"\n",  mayores*4,"\n",  mayores*5,"\n",  mayores*6,"\n",  mayores*7,"\n",  mayores*8,"\n",  mayores*9,"\n",  mayores*10 )
     else:
         print("Valor ingresado inválido")
