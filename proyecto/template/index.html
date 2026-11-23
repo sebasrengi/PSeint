@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario - Tienda de Maquillaje</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>✨ Inventario Cosmético</h1>
+            <p>Control de stock, tonos y valoración de productos</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Tarjetas de Resumen -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Referencias Totales</span>
+                <strong class="stat-value">{{ total_productos }}</strong>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Valor del Inventario</span>
+                <strong class="stat-value">${{ "{:,.2f}".format(valor_inventario) }}</strong>
+            </div>
+            <div class="stat-card alert-card">
+                <span class="stat-label">Stock Bajo (≤ 5 uds)</span>
+                <strong class="stat-value">{{ stock_bajo }}</strong>
+            </div>
+        </section>
+
+        <!-- Formulario para Agregar Producto -->
+        <section class="card form-section">
+            <h2>Registrar Nuevo Producto</h2>
+            <form action="{{ url_for('agregar') }}" method="POST" class="product-form">
+                <div class="form-group">
+                    <label for="nombre">Producto</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Ej: Labial Matte" required>
+                </div>
+                <div class="form-group">
+                    <label for="marca">Marca</label>
+                    <input type="text" id="marca" name="marca" placeholder="Ej: MAC / Maybelline" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoria">Categoría</label>
+                    <select id="categoria" name="categoria" required>
+                        <option value="Rostro">Rostro (Bases, Polvos, Rubor)</option>
+                        <option value="Ojos">Ojos (Sombras, Máscaras, Delineador)</option>
+                        <option value="Labios">Labios (Labiales, Gloss, Bálsamos)</option>
+                        <option value="Skincare">Skincare / Preparación</option>
+                        <option value="Brochas y Accesorios">Brochas y Accesorios</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tono">Tono / Variante</label>
+                    <input type="text" id="tono" name="tono" placeholder="Ej: Ruby Woo / 02 Beige">
+                </div>
+                <div class="form-group">
+                    <label for="precio">Precio Unitario ($)</label>
+                    <input type="number" id="precio" name="precio" step="0.01" min="0" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="stock">Stock Inicial</label>
+                    <input type="number" id="stock" name="stock" min="0" placeholder="0" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">+ Agregar al Inventario</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Barra de Búsqueda y Tabla -->
+        <section class="card">
+            <div class="table-header">
+                <h2>Catálogo Actual</h2>
+                <form action="{{ url_for('index') }}" method="GET" class="search-form">
+                    <input type="text" name="buscar" value="{{ busqueda }}" placeholder="Buscar por producto, marca o categoría...">
+                    <button type="submit" class="btn btn-secondary">Buscar</button>
+                    {% if busqueda %}
+                        <a href="{{ url_for('index') }}" class="btn btn-clear">Limpiar</a>
+                    {% endif %}
+                </form>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Marca</th>
+                            <th>Categoría</th>
+                            <th>Tono</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in productos %}
+                        <tr class="{{ 'row-low-stock' if p['stock'] <= 5 else '' }}">
+                            <td><strong>{{ p['nombre'] }}</strong></td>
+                            <td>{{ p['marca'] }}</td>
+                            <td><span class="badge">{{ p['categoria'] }}</span></td>
+                            <td>{{ p['tono'] or '—' }}</td>
+                            <td>${{ "{:,.2f}".format(p['precio']) }}</td>
+                            <td>
+                                <div class="stock-controls">
+                                    <form action="{{ url_for('actualizar_stock', id=p['id']) }}" method="POST">
+                                        <input type="hidden" name="accion" value="restar">
+                                        <button type="submit" class="btn-qty" title="Vender / Restar 1">-</button>
+                                    </form>
+                                    <span class="qty-value {{ 'text-danger' if p['stock'] <= 5 else '' }}">
+                                        {{ p['stock'] }}
+                                    </span>
+                                    <form action="{{ url_for('actualizar_stock', id=p['id']) }}" method="POST">
+                                        <input type="hidden" name="accion" value="sumar">
+                                        <button type="submit" class="btn-qty" title="Reponer / Sumar 1">+</button>
+                                    </form>
+                                </div>
+                            </td>
+                            <td>
+                                <form action="{{ url_for('eliminar', id=p['id']) }}" method="POST" onsubmit="return confirm('¿Eliminar este producto del inventario?');">
+                                    <button type="submit" class="btn-delete">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="empty-state">No hay productos registrados o que coincidan con tu búsqueda.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
